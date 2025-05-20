@@ -1,0 +1,38 @@
+#######################################################
+#CASTEP param file: ./calculations/NVT_finer/12/sio2.param
+#Created using the Atomic Simulation Environment (ASE)#
+# Internal settings of the calculator
+# This can be switched off by settings
+# calc._export_settings = False
+# If stated, this will be automatically processed
+# by ase.io.castep.read_seed()
+# ASE_INTERFACE _build_missing_pspots : True
+# ASE_INTERFACE _castep_command : castep
+# ASE_INTERFACE _castep_pp_path : /Users/chihebbenmahmoud/Projects/NMR/NMR-SiO2/dft_cv_tests
+# ASE_INTERFACE _check_checkfile : True
+# ASE_INTERFACE _copy_pspots : False
+# ASE_INTERFACE _directory : ./calculations/NVT_finer/12
+# ASE_INTERFACE _export_settings : True
+# ASE_INTERFACE _find_pspots : False
+# ASE_INTERFACE _force_write : True
+# ASE_INTERFACE _label : sio2
+# ASE_INTERFACE _link_pspots : True
+# ASE_INTERFACE _pedantic : False
+# ASE_INTERFACE _prepare_input_only : True
+# ASE_INTERFACE _rename_existing_dir : False
+# ASE_INTERFACE _set_atoms : False
+# ASE_INTERFACE _track_output : False
+# ASE_INTERFACE _try_reuse : False
+#######################################################
+
+TASK: magres
+CUT_OFF_ENERGY: 900
+COMMENT: NMR
+IPRINT: 2
+XC_FUNCTIONAL: PBE
+MAGRES_TASK: NMR
+CALCULATE_STRESS: True
+FIX_OCCUPANCY: True
+OPT_STRATEGY: speed
+MAX_SCF_CYCLES: 200
+NUM_DUMP_CYCLES: 0

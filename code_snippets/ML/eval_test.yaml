@@ -1,0 +1,10 @@
+root: ./
+
+batch_size: 5
+chemical_symbols:
+- O
+- Si
+dataset: ase
+dataset_file_name: /path/to/test/frames
+key_mapping:
+  ms_all_center_stand: magres

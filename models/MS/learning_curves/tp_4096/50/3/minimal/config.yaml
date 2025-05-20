@@ -1,0 +1,184 @@
+_jit_bailout_depth: 2
+_jit_fuser: fuser1
+_jit_fusion_strategy:
+- !!python/tuple
+  - DYNAMIC
+  - 3
+allow_tf32: true
+append: false
+ase_args:
+  format: extxyz
+avg_num_neighbors: 23.551713947990542
+batch_size: 5
+chemical_embedding_irreps_out: 32x0e
+chemical_symbols:
+- O
+- Si
+code_commits:
+  nequip: 3d94688a2d55dbbca35e7980da47cc77e9936dcb
+conv_to_output_hidden_irreps_out: 32x4e
+dataloader_num_workers: 0
+dataset: ase
+dataset_AtomicData_options:
+  r_max: 4.313777
+dataset_file_name: /u/vld/iclb0755/nequip_tensors_prod/train_50_3.xyz
+dataset_seed: 400452
+dataset_statistics_stride: 1
+default_dtype: float64
+device: cuda
+e3nn_version: 0.5.1
+early_stopping: null
+early_stopping_kwargs: null
+early_stopping_lower_bounds:
+  LR: 1.0e-05
+early_stopping_patiences:
+  validation_loss: 100
+ema_decay: 0.999
+ema_use_num_updates: true
+end_of_batch_callbacks: []
+end_of_epoch_callbacks: []
+end_of_train_callbacks: []
+equivariance_test: false
+exclude_keys: []
+feature_irreps_hidden: 64x0e+64x1o+64x2e+64x3o+64x4e
+final_callbacks: []
+gpu_oom_offload: false
+grad_anomaly_mode: false
+hidden_tp: 128x4e
+init_callbacks: []
+invariant_layers: 2
+invariant_neurons: 128
+irreps_edge_sh: 1x0e+1x1o+1x2e+1x3o+1x4e
+irreps_out: tp
+key_mapping:
+  ms_all_center_stand: magres
+learning_rate: 0.001
+log_batch_freq: 100
+log_epoch_freq: 1
+loss_coeffs:
+  magres:
+  - 1.0
+  - PerSpeciesMSELoss
+lr_scheduler_factor: 0.5
+lr_scheduler_kwargs:
+  cooldown: 0
+  eps: 1.0e-08
+  factor: 0.5
+  min_lr: 0
+  mode: min
+  patience: 50
+  threshold: 0.0001
+  threshold_mode: rel
+  verbose: false
+lr_scheduler_name: ReduceLROnPlateau
+lr_scheduler_patience: 50
+max_epochs: 3000
+max_gradient_norm: .inf
+metrics_components: null
+metrics_key: validation_loss
+model_builders:
+- SimpleIrrepsConfig
+- MagResTensorModel
+model_debug_mode: false
+model_dtype: float32
+n_train: 47
+n_train_per_epoch: null
+n_val: 3
+nequip_version: 0.6.1
+nonlinearity_gates:
+  e: silu
+  o: tanh
+nonlinearity_scalars:
+  e: silu
+  o: tanh
+nonlinearity_type: gate
+num_layers: 4
+num_types: 2
+optimizer_amsgrad: true
+optimizer_betas: &id001 !!python/tuple
+- 0.9
+- 0.999
+optimizer_kwargs:
+  amsgrad: true
+  betas: *id001
+  capturable: false
+  differentiable: false
+  eps: 1.0e-08
+  foreach: null
+  fused: false
+  maximize: false
+  weight_decay: 0
+optimizer_name: Adam
+r_max: 4.313777
+report_init_validation: true
+root: ./
+run_name: minimal
+save_checkpoint_freq: -1
+save_ema_checkpoint_freq: -1
+seed: 48462
+shuffle: true
+start_of_epoch_callbacks: []
+tensorboard: false
+torch_version: !!python/object/new:torch.torch_version.TorchVersion
+- 1.13.1
+train_idcs: !!python/object/apply:torch._utils._rebuild_tensor_v2
+- !!python/object/apply:torch.storage._load_from_bytes
+  - !!binary |
+    gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAA
+    AGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAA
+    aW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApMb25nU3RvcmFn
+    ZQpxAVgJAAAAMTEyMDQ2Mzg0cQJYAwAAAGNwdXEDSzJOdHEEUS6AAl1xAFgJAAAAMTEyMDQ2Mzg0
+    cQFhLjIAAAAAAAAAJgAAAAAAAAAjAAAAAAAAACoAAAAAAAAAFAAAAAAAAAAkAAAAAAAAAAsAAAAA
+    AAAABgAAAAAAAAAaAAAAAAAAABIAAAAAAAAABwAAAAAAAAAWAAAAAAAAABwAAAAAAAAALQAAAAAA
+    AAAsAAAAAAAAAB4AAAAAAAAABAAAAAAAAAABAAAAAAAAAA4AAAAAAAAAEwAAAAAAAAAYAAAAAAAA
+    AB0AAAAAAAAALwAAAAAAAAAnAAAAAAAAABEAAAAAAAAADQAAAAAAAAAiAAAAAAAAACgAAAAAAAAA
+    HwAAAAAAAAAQAAAAAAAAABkAAAAAAAAACAAAAAAAAAAbAAAAAAAAAAUAAAAAAAAAIAAAAAAAAAAw
+    AAAAAAAAAAMAAAAAAAAAFQAAAAAAAAAAAAAAAAAAABcAAAAAAAAAKwAAAAAAAAAuAAAAAAAAACkA
+    AAAAAAAAMQAAAAAAAAAKAAAAAAAAAAwAAAAAAAAAIQAAAAAAAAAJAAAAAAAAAAIAAAAAAAAADwAA
+    AAAAAAAlAAAAAAAAAA==
+- 0
+- !!python/tuple
+  - 47
+- !!python/tuple
+  - 1
+- false
+- !!python/object/apply:collections.OrderedDict
+  - []
+train_on_keys:
+- magres
+train_val_split: random
+type_names:
+- O
+- Si
+type_to_chemical_symbol:
+  0: O
+  1: Si
+use_ema: false
+val_idcs: !!python/object/apply:torch._utils._rebuild_tensor_v2
+- !!python/object/apply:torch.storage._load_from_bytes
+  - !!binary |
+    gAKKCmz8nEb5IGqoUBkugAJN6QMugAJ9cQAoWBAAAABwcm90b2NvbF92ZXJzaW9ucQFN6QNYDQAA
+    AGxpdHRsZV9lbmRpYW5xAohYCgAAAHR5cGVfc2l6ZXNxA31xBChYBQAAAHNob3J0cQVLAlgDAAAA
+    aW50cQZLBFgEAAAAbG9uZ3EHSwR1dS6AAihYBwAAAHN0b3JhZ2VxAGN0b3JjaApMb25nU3RvcmFn
+    ZQpxAVgJAAAAMTEyMDQ2Mzg0cQJYAwAAAGNwdXEDSzJOdHEEUS6AAl1xAFgJAAAAMTEyMDQ2Mzg0
+    cQFhLjIAAAAAAAAAJgAAAAAAAAAjAAAAAAAAACoAAAAAAAAAFAAAAAAAAAAkAAAAAAAAAAsAAAAA
+    AAAABgAAAAAAAAAaAAAAAAAAABIAAAAAAAAABwAAAAAAAAAWAAAAAAAAABwAAAAAAAAALQAAAAAA
+    AAAsAAAAAAAAAB4AAAAAAAAABAAAAAAAAAABAAAAAAAAAA4AAAAAAAAAEwAAAAAAAAAYAAAAAAAA
+    AB0AAAAAAAAALwAAAAAAAAAnAAAAAAAAABEAAAAAAAAADQAAAAAAAAAiAAAAAAAAACgAAAAAAAAA
+    HwAAAAAAAAAQAAAAAAAAABkAAAAAAAAACAAAAAAAAAAbAAAAAAAAAAUAAAAAAAAAIAAAAAAAAAAw
+    AAAAAAAAAAMAAAAAAAAAFQAAAAAAAAAAAAAAAAAAABcAAAAAAAAAKwAAAAAAAAAuAAAAAAAAACkA
+    AAAAAAAAMQAAAAAAAAAKAAAAAAAAAAwAAAAAAAAAIQAAAAAAAAAJAAAAAAAAAAIAAAAAAAAADwAA
+    AAAAAAAlAAAAAAAAAA==
+- 47
+- !!python/tuple
+  - 3
+- !!python/tuple
+  - 1
+- false
+- !!python/object/apply:collections.OrderedDict
+  - []
+validation_batch_size: 3
+var_num_neighbors: 3.4216493636829926
+verbose: info
+wandb: false
+warn_unused: false

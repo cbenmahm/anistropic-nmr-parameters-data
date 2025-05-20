@@ -1,0 +1,8 @@
+This folder contains snippets to train a NequIP model targeting NMR tensors.
+
+1. 1-prepare_data.py: prepares the data for normalization and standardization. It computes the mean and standard deviation of all the ISD tensor elements from the training set, and dumps them in a json file "data_mean_std.json"
+1. 2-transform-from-cartesian.py: returns the (training set) with normalized and standardized learning targets
+1. 3-transform-to-cartesian: takes the .xyz resulting from "nequip-evaluate" and gives you Cartesian tensors
+1. config.yaml: our training config file for nequip
+1. eval_test.yaml: config file used to evaluate the trained model on a test set for example
+1. run_evaluate.sh: contains the command to evaluate the trained 

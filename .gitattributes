@@ -1,0 +1,4 @@
+data/train_test/test_with_all_labels.xyz filter=lfs diff=lfs merge=lfs -text
+data/cristobalite/cristobalite_alpha_beta_inversion_ml_isd_ms_efg.xyz filter=lfs diff=lfs merge=lfs -text
+data/train_test/train.xyz filter=lfs diff=lfs merge=lfs -text
+*xyz filter=lfs diff=lfs merge=lfs -text

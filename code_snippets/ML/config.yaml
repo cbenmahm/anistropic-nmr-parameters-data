@@ -1,0 +1,94 @@
+# general
+root: ./
+run_name: minimal
+seed: 42
+dataset_seed: 42
+# append: true
+
+# -- network --
+# the order of stacking here is VERY important
+model_builders:
+  - SimpleIrrepsConfig
+  - MagResTensorModel
+
+device: cuda
+default_dtype: float64
+model_dtype: float32
+ 
+# cutoffs
+r_max: 5.533
+
+# radial network
+invariant_layers: 1  # number of radial layers, we found it important to keep this small, 1 or 2
+invariant_neurons: 64 # number of hidden neurons in radial function, smaller is faster
+# use_sc: true # use self-connection or not, usually gives big improvement
+# compile_model: false # whether to compile the constructed model to TorchScript
+
+# network symmetry
+num_layers: 6 # number of interaction blocks, we found 5-6 to work best
+chemical_embedding_irreps_out: 32x0e # irreps for the chemical embedding of species
+feature_irreps_hidden: 128x0e+128x1e+128x2e+128x0o+128x1o+128x2o  # irreps used for hidden features, here we go up to lmax=2, with even and odd parities
+irreps_edge_sh: 2  # irreps of the spherical harmonics used for edges. If a single integer, indicates the full SH up to L_max=that_integer
+conv_to_output_hidden_irreps_out: 16x0e+16x1e+16x2e # irreps used in hidden layer of output block; must match the order of irreps_out
+irreps_out: 0e+1e+2e # possible values are 0e; 1e, 2e, full or 0e+1e+2e; tp
+
+nonlinearity_type: gate # may be 'gate' or 'norm', 'gate' is recommended
+
+nonlinearity_scalars:
+  e: silu
+  o: tanh
+nonlinearity_gates:
+  e: silu
+  o: tanh
+
+# -- data --
+dataset: ase # type of data set, can be npz or ase
+# dataset_file_name: ./train_allegro.xyz # path to data set file
+# dataset_file_name: ./fine_test.xyz # path to data set file
+dataset_file_name:  /u/vld/iclb0755/nequip_tensors_prod/train.xyz
+ase_args: 
+  format: extxyz
+key_mapping:
+ ms_center_stand: magres # use the key for the 9 components
+
+# A mapping of chemical species to type indexes is necessary if the dataset is provided with atomic numbers instead of type indexes.
+chemical_symbols:
+  - O
+  - Si
+
+# logging
+# wandb: false
+# wandb_project: mini
+verbose: info
+
+# training
+n_train: 800
+n_val: 50
+batch_size: 5
+validation_batch_size: 10
+max_epochs: 3000
+learning_rate: 0.001
+
+# loss function
+loss_coeffs:
+  magres:
+    - 1.0
+    - PerSpeciesMSELoss
+    # - !!python/object:nequip.train.loss.MyL1Loss {}
+    # - Simple
+
+# optimizer
+optimizer_name: Adam
+optimizer_amsgrad: true
+optimizer_betas: !!python/tuple
+  - 0.9
+  - 0.999
+
+lr_scheduler_name: ReduceLROnPlateau
+lr_scheduler_patience: 50
+lr_scheduler_factor: 0.5
+
+early_stopping_lower_bounds: # stop early if a metric value is lower than the bound
+  LR: 1.0e-5
+early_stopping_patiences:
+    validation_loss: 50

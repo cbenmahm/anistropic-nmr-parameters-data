@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1 nequip-evaluate --train-dir minimal --dataset-config eval_test.yaml --output /name_of_output_file.xyz/ --batch-size 5 --output-fields magres --output-fields-from-original-dataset magres

@@ -1,0 +1,200 @@
+#timer timeout 0 every 1
+
+log ${rundir}/log_nvt_${system}.dat append
+
+##################################################
+# PART 1: Randomization, melt and quench with CHIK
+####################################
+units metal
+atom_style charge
+
+
+if "${restart_from} == data" then "read_data ${data_file}"
+if "${restart_from} == data" then "reset_timestep 0"
+if "${restart_from} == continuation" then "read_restart ${rundir}/restart_nvt_${system}.*"
+
+mass 2 28.0855
+mass 1 15.999
+
+
+set type 1 charge   -0.955209
+set type 2 charge   1.910418
+
+pair_style hybrid/overlay buck/coul/long 6.5 table linear 5000
+
+pair_coeff 2 2 buck/coul/long 3150.462646 0.350699 626.751953
+pair_coeff 1 2 buck/coul/long 27029.419922 0.1938508 148.099091
+pair_coeff 1 1 buck/coul/long 659.595398 0.3860905 26.836679
+pair_coeff 1 1 table /u/vld/spet5633/NMR-SiO2/Structure_database/CHIK_silica.pot CHIK_O_O
+pair_coeff 1 2 table /u/vld/spet5633/NMR-SiO2/Structure_database/CHIK_silica.pot CHIK_Si_O
+pair_coeff 2 2 table /u/vld/spet5633/NMR-SiO2/Structure_database/CHIK_silica.pot CHIK_Si_Si
+pair_modify shift yes
+kspace_style  pppm 1e-4
+kspace_modify diff ad
+
+
+
+neighbor 2.0 bin #default bin value for unit style (ie. metal)
+neigh_modify every 1 delay 0 check yes #rebuild the neighbor list at every timestep
+
+
+variable Nfreq equal 1000
+variable Nprint equal 1000
+variable Nevery equal 1000
+variable Nrepeat equal ${Nfreq}/${Nevery}
+variable Ndump equal 1000
+variable nAtoms equal atoms
+
+timestep 0.001
+
+fix removeMomentum all momentum 1 linear 1 1 1 
+
+compute T all temp 
+fix TempAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_T 
+
+variable P equal press 
+fix PressAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_P 
+
+variable v equal vol
+fix vAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_v
+
+compute PE all pe pair 
+fix PEAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_PE
+compute PEa all pe/atom pair
+
+compute MSD all msd
+
+thermo_style custom step cpu temp f_TempAve press f_PressAve f_PEAve vol f_vAve c_MSD[4] 
+thermo_modify flush yes
+
+thermo ${Nfreq}
+
+
+variable Nrun0 equal ${ran_timesteps}
+variable Nrun1 equal (${Nrun0}+${melt_timesteps})
+variable Nrun2 equal (${Nrun1}+${quench_timesteps})
+variable Nrun3 equal (${Nrun2}+${anneal_timesteps})
+variable fin equal (${Nrun3}+1)
+
+variable s equal stride(${Nrun1},${Nrun2}+${Nrestart},${Nrestart})
+
+
+#dump traj all atom ${Ndump}  ${rundir}/NVT/dump_nvt_${system}.*.dat 
+#dump sep all custom 1  ${rundir}/NVT/dump_custom.${system}.*.dat id type x y z vx vy vz c_PEa
+dump ens all custom ${Ndump} ${rundir}/NVT/dump_custom_CHIK id type x y z fx fy fz c_PEa
+#difference between dump ens and dump sep is that dump sep has a .dat file for each timestep vs ens is 1 big file
+dump_modify ens sort 1 #sorting the dump by the 1st column of data ie the id
+
+restart v_s restart/restart_nvt_${system}.* # write restart file at custom stride (only during quench)
+
+if "${ran_timesteps} > 0 && $(step) == 0" then "velocity all create ${t_ran} ${rand}" #give random velocities at t=0
+
+run 0
+
+minimize 0 1.0e-3 10000 10000
+
+
+#Randomizing
+fix integrate all nvt temp ${t_ran} ${t_ran} $(100.0*dt)
+if "$(step) < ${Nrun0}" then "run ${Nrun0} upto "
+unfix integrate
+
+#Melting
+fix integrate all nvt temp ${t_melt} ${t_melt} $(100.0*dt)
+if "$(step) < ${Nrun1}" then "run ${Nrun1} upto start ${Nrun0} stop ${Nrun1} "
+unfix integrate
+
+write_data out_str/out_data_quench_${system}.fin_m
+
+#Quenching
+fix integrate all nvt temp ${t_melt} ${t_quench} $(100.0*dt)
+if "$(step) < ${Nrun2}" then "run ${Nrun2} upto start ${Nrun1} stop ${Nrun2} "
+unfix integrate
+
+write_data out_str/out_data_quench_${system}.fin_q
+write_restart ${rundir}/restart/restart_end_quench
+
+clear
+
+
+########################################
+# PART 2: Anneal and relax with GAP
+########################################
+
+#timer timeout 0 every 1
+
+units metal
+atom_style charge
+
+read_restart ${rundir}/restart/restart_end_quench
+
+
+mass 2 28.0855
+mass 1 15.999
+
+
+pair_style quip 
+pair_coeff * * /u/vld/spet5633/NMR-SiO2/Structure_database/silica_gap.xml "Potential xml_label=GAP_2021_4_19_120_7_32_55_336" 8 14
+#pair_coeff * * /u/vld/spet5633/NMR-SiO2/Structure_database/silica_gap.xml "Potential label=GAP_2021_4_19_120_7_32_55_336" 14 8
+
+
+neighbor 2.0 bin #default bin value for unit style (ie. metal)
+neigh_modify every 1 delay 0 check yes #rebuild the neighbor list at every timestep
+
+
+variable Nfreq equal 1000
+variable Nprint equal 1000
+variable Nevery equal 1000
+variable Nrepeat equal ${Nfreq}/${Nevery}
+variable Ndump equal 1000
+variable nAtoms equal atoms
+
+timestep 0.001
+
+fix removeMomentum all momentum 1 linear 1 1 1 
+
+compute T all temp 
+fix TempAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_T 
+
+variable P equal press 
+fix PressAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_P 
+
+variable v equal vol
+fix vAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} v_v
+
+compute PE all pe pair 
+fix PEAve all ave/time ${Nevery} ${Nrepeat} ${Nfreq} c_PE
+compute PEa all pe/atom pair
+
+compute MSD all msd
+
+thermo_style custom step cpu temp f_TempAve press f_PressAve f_PEAve vol f_vAve c_MSD[4] 
+thermo_modify flush yes
+
+thermo ${Nfreq}
+
+variable Nrun0 equal ${ran_timesteps}
+variable Nrun1 equal (${Nrun0}+${melt_timesteps})
+variable Nrun2 equal (${Nrun1}+${quench_timesteps})
+variable Nrun3 equal (${Nrun2}+${anneal_timesteps})
+variable fin equal (${Nrun3}+1)
+
+
+#dump traj all atom ${Ndump}  ${rundir}/NVT/dump_nvt_${system}.*.dat 
+#dump sep all custom 1  ${rundir}/NVT/dump_custom.${system}.*.dat id type x y z vx vy vz c_PEa
+dump ens all custom ${Ndump} ${rundir}/NVT/dump_custom_GAP id type x y z fx fy fz c_PEa
+#difference between dump ens and dump sep is that dump sep has a .dat file for each timestep vs ens is 1 big file
+dump_modify ens sort 1 #sorting the dump by the 1st column of data ie the id
+
+
+#Annealing
+fix integrate all nvt temp ${t_anneal} ${t_anneal} $(100.0*dt)
+run ${anneal_timesteps}
+
+#Dump data
+write_data ${rundir}/out_str/out_data_quench_${system}.fin_a
+dump fin_q all custom ${Nrun3} NVT/dump_fin_a id type x y z fx fy fz c_PEa
+
+#Relaxation
+minimize 0 1.0e-3 10000 10000
+write_data ${rundir}/out_str/out_data_quench_${system}.fin_r

@@ -1,0 +1,1 @@
+LAMMPS input used to run the melt-quench-anneal trajectories to generate the training data. Metl-quench were run using the CHIK potential, and anneal with GAP

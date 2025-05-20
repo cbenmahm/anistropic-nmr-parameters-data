@@ -1,0 +1,128 @@
+# general
+root: ./
+run_name: minimal
+seed: 42
+dataset_seed: 42
+# append: true
+
+# -- network --
+# the order of stacking here is VERY important
+model_builders:
+  #- allegro.model.Allegro
+  - SimpleIrrepsConfig
+  - MagResTensorModel #EnergyModel
+  # - PerSpeciesRescale
+  # - RescaleEnergyEtc
+
+device: cuda
+default_dtype: float64
+model_dtype: float32
+ 
+# cutoffs
+r_max: 4.313777
+
+# radial network
+invariant_layers: 2  # number of radial layers, we found it important to keep this small, 1 or 2
+invariant_neurons: 128 # number of hidden neurons in radial function, smaller is faster
+# avg_num_neighbors: 34 # number of neighbors to divide by, None => no normalization.
+# use_sc: true # use self-connection or not, usually gives big improvement
+# compile_model: false # whether to compile the constructed model to TorchScript
+
+# data set
+# the keys used need to be stated at least once in key_mapping, npz_fixed_field_keys or npz_keys
+
+# network symmetry
+num_layers: 4 # number of interaction blocks, we found 5-6 to work best
+chemical_embedding_irreps_out: 32x0e # irreps for the chemical embedding of species
+feature_irreps_hidden: 64x0e+64x1o+64x2e+64x3o+64x4e # irreps used for hidden features, here we go up to lmax=2, with even and odd parities
+irreps_edge_sh: 1x0e+1x1o+1x2e  # irreps of the spherical harmonics used for edges. If a single integer, indicates the full SH up to L_max=that_integer
+conv_to_output_hidden_irreps_out: 32x2e # irreps used in hidden layer of output block
+irreps_out: tp
+hidden_tp: 128x2e
+
+# l_max: 0                                                                          # the maximum irrep order (rotation order) for the network's features, l=1 is a good default, l=2 is more accurate but slower
+# parity: true                                                                      # whether to include features with odd mirror parityy; often turning parity off gives equally good results but faster networks, so do consider this
+# num_features: 32                                                                  # the multiplicity of the features, 32 is a good default for accurate network, if you want to be more accurate, go larger, if you want to be faster, go lower
+
+nonlinearity_type: gate # may be 'gate' or 'norm', 'gate' is recommended
+
+nonlinearity_scalars:
+  e: silu
+  o: tanh
+nonlinearity_gates:
+  e: silu
+  o: tanh
+
+# chemical_embedding_irreps_out: 16x0e # irreps for the chemical embedding of species
+# feature_irreps_hidden: 32x0o + 32x0e + 32x1o + 32x1e # irreps used for hidden features, here we go up to lmax=1, with even and odd parities; for more accurate but slower networks, use l=2 or higher, smaller number of features is faster
+# irreps_edge_sh: 0e + 1o # irreps of the spherical harmonics used for edges. If a single integer, indicates the full SH up to L_max=that_integer
+# conv_to_output_hidden_irreps_out: 16x1e # irreps used in hidden layer of output block
+
+# allegro layers:
+# num_layers: 1
+# env_embed_multiplicity: 32
+# two_body_latent_mlp_latent_dimensions: [32, 64]
+# two_body_latent_mlp_nonlinearity: silu
+
+# latent_mlp_latent_dimensions: [64]
+# latent_mlp_nonlinearity: silu
+
+# latent_resnet: true
+
+# env_embed_mlp_latent_dimensions: []
+# env_embed_mlp_nonlinearity: null
+
+# edge_eng_mlp_latent_dimensions: [32]
+# edge_eng_mlp_nonlinearity: null
+
+# -- data --
+dataset: ase # type of data set, can be npz or ase
+# dataset_file_name: ./train_allegro.xyz # path to data set file
+# dataset_file_name: ./fine_test.xyz # path to data set file
+dataset_file_name:  /u/vld/iclb0755/nequip_tensors_prod/train.xyz
+ase_args: 
+  format: extxyz
+key_mapping:
+  ms_all_center_stand: magres # iso chemical shielding
+
+# A mapping of chemical species to type indexes is necessary if the dataset is provided with atomic numbers instead of type indexes.
+chemical_symbols:
+  - O
+  - Si
+
+# logging
+# wandb: false
+# wandb_project: mini
+verbose: info
+
+# training
+n_train: 800
+n_val: 50
+batch_size: 5
+validation_batch_size: 10
+max_epochs: 3000
+learning_rate: 0.001
+
+# loss function
+loss_coeffs:
+  magres:
+    - 1.0
+    - PerSpeciesMSELoss
+    # - !!python/object:nequip.train.loss.MyL1Loss {}
+    # - Simple
+
+# optimizer
+optimizer_name: Adam
+optimizer_amsgrad: true
+optimizer_betas: !!python/tuple
+  - 0.9
+  - 0.999
+
+lr_scheduler_name: ReduceLROnPlateau
+lr_scheduler_patience: 50
+lr_scheduler_factor: 0.5
+
+early_stopping_lower_bounds: # stop early if a metric value is lower than the bound
+  LR: 1.0e-5
+early_stopping_patiences:
+    validation_loss: 100
